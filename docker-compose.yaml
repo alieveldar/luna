@@ -15,20 +15,17 @@ services:
       - laravel
     depends_on:
       - mysql
+      - composer
     environment:
       - COMPOSER_ALLOW_SUPERUSER=1
-      - APP_API_KEY=key_from_compose
 
   composer:
     image: composer:2.6
     container_name: luna_composer
     working_dir: /var/www
-    build:
-        context: .
-        dockerfile: docker/Composer/Dockerfile
     volumes:
       - ./src:/var/www
-    entrypoint: ['composer']
+    entrypoint: ['composer' , 'install']
     networks:
       - laravel
 

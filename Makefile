@@ -20,11 +20,6 @@ rebuild:
 	docker-compose build --no-cache
 	docker-compose up -d
 
-# Установка зависимостей
-install:
-	docker-compose exec composer install || true
-	docker-compose exec app npm install || true
-
 # Генерация ключа Laravel
 key:
 	docker-compose exec app php artisan key:generate
@@ -42,7 +37,7 @@ docs:
 	docker-compose exec app php artisan l5-swagger:generate
 
 # Полный разворот проекта
-init: up install key migrate seed docs
+init: up wait-composer key migrate seed docs
 
 # Полный сброс базы и сидирование заново
 reset:
@@ -50,3 +45,11 @@ reset:
 
 # Только миграции и сидирование
 fresh: migrate
+
+wait-composer:
+	@echo "Ожидание установки зависимостей Composer..."
+	@until docker-compose exec app test -f vendor/autoload.php; do \
+		echo "Ждём завершения composer install..."; \
+		sleep 2; \
+	done
+	@echo "✅ Composer install выполнен!"
